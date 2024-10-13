@@ -1,0 +1,135 @@
+services:
+  zookeeper:
+    image: bitnami/zookeeper:3.5
+    container_name: zookeeper
+    ports:
+      - "2181"
+    networks:
+      - service-net
+    environment:
+      - ALLOW_ANONYMOUS_LOGIN=yes
+    volumes:
+      - zookeeper-data:/bitnami/zookeeper
+  kafka-0:
+    image: bitnami/kafka:2.8.1
+    container_name: kafka-0
+    expose:
+      - 9092
+    ports:
+      - "29092:29092"
+    networks:
+      - service-net
+    environment:
+      - ALLOW_PLAINTEXT_LISTENER=yes
+      - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
+      - KAFKA_CFG_BROKER_ID=0
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
+      - KAFKA_CFG_LISTENERS=INTERNAL://:9092,EXTERNAL://:29092
+      - KAFKA_CFG_ADVERTISED_LISTENERS=INTERNAL://kafka-0:9092,EXTERNAL://localhost:29092
+      - KAFKA_CFG_INTER_BROKER_LISTENER_NAME=INTERNAL
+      - KAFKA_CFG_NUM_PARTITIONS=2
+      - KAFKA_CFG_DEFAULT_REPLICATION_FACTOR=1
+    volumes:
+      - kafka-0-data:/bitnami/kafka
+    depends_on:
+      - zookeeper
+  kafka-connect:
+    image: bitnami/kafka:2.8.1
+    container_name: connect
+    command: >
+      /opt/bitnami/kafka/bin/connect-distributed.sh
+      /opt/bitnami/kafka/config/connect-distributed.properties
+    ports:
+      - "8083:8083"
+    networks:
+      - service-net
+    volumes:
+      - "./configs:/opt/bitnami/kafka/config"
+      - "./connectors/opensearch-connector:/opt/connectors/opensearch-connector"
+    depends_on:
+      - zookeeper
+      - kafka-0
+  redpanda-console:
+    image: redpandadata/console:latest
+    ports:
+      - "8001:8080"
+    environment:
+      KAFKA_BROKERS: kafka:29092
+    depends_on:
+      - zookeeper
+      - kafka-0
+      - kafka-connect
+  opensearch-node1:
+    image: opensearchproject/opensearch:2.9.0
+    container_name: opensearch-node1
+    environment:
+      - cluster.name=opensearch-cluster
+      - node.name=opensearch-node1
+      - discovery.seed_hosts=opensearch-node1,opensearch-node2
+      - cluster.initial_cluster_manager_nodes=opensearch-node1,opensearch-node2
+      - bootstrap.memory_lock=true
+      - "OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    volumes:
+      - opensearch-node1-data:/usr/share/opensearch/data
+    ports:
+      - 9200:9200
+      - 9600:9600
+    networks:
+      - service-net
+  opensearch-node2:
+    image: opensearchproject/opensearch:2.9.0
+    container_name: opensearch-node2
+    environment:
+      - cluster.name=opensearch-cluster
+      - node.name=opensearch-node2
+      - discovery.seed_hosts=opensearch-node1,opensearch-node2
+      - cluster.initial_cluster_manager_nodes=opensearch-node1,opensearch-node2
+      - bootstrap.memory_lock=true
+      - "OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    volumes:
+      - opensearch-node1-data:/usr/share/opensearch/data
+    networks:
+      - service-net
+  opensearch-dashboards:
+    image: opensearchproject/opensearch-dashboards:2.9.0
+    container_name: opensearch-dashboards
+    ports:
+      - 5601:5601
+    expose:
+      - "5601"
+    environment:
+      OPENSEARCH_HOSTS: '["https://opensearch-node1:9200","https://opensearch-node2:9200"]'
+    networks:
+      - service-net
+
+networks:
+  service-net:
+    name: service-net
+
+volumes:
+  zookeeper-data:
+    driver: local
+    name: zookeeper-data
+  kafka-0-data:
+    driver: local
+    name: kafka-0-data
+  opensearch-node1-data:
+    driver: local
+    name: opensearch-node1-data
+  opensearch-node2-data:
+    driver: local
+    name: opensearch-node2-data
