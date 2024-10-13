@@ -3,4 +3,4 @@ Demo of website interactions of users using streamlit for the frontend, Kafka to
 
 - `docker exec -it kafka-0 bash`
 - `cd /opt/bitnami/kafka/bin`
-- `kafka-topics.sh --create --topic power.power_data --bootstrap-server localhost:9092`
+- `kafka-topics.sh --create --topic canvas --bootstrap-server localhost:9092`

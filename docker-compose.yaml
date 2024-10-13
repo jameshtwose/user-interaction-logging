@@ -54,11 +54,13 @@ services:
     ports:
       - "8001:8080"
     environment:
-      KAFKA_BROKERS: kafka:29092
+      KAFKA_BROKERS: kafka-0:29092
     depends_on:
       - zookeeper
       - kafka-0
       - kafka-connect
+    networks:
+      - service-net
   opensearch-node1:
     image: opensearchproject/opensearch:2.9.0
     container_name: opensearch-node1

@@ -3,3 +3,4 @@ streamlit
 streamlit-drawable-canvas>=0.8
 svgpathtools
 svgwrite
+opensearch-py
