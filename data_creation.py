@@ -54,7 +54,7 @@ def kafka_consumer_power(
             # use a comma seperated str to add multiple brokers
             "bootstrap.servers": kafka_brokers,
             "group.id": "power",
-            "auto.offset.reset": "earliest",
+            "auto.offset.reset": "latest",
             "socket.keepalive.enable": True,
         }
     )
@@ -71,5 +71,5 @@ def kafka_consumer_power(
     # c.close()
     
 if __name__ == "__main__":
-    kafka_producer_power()
+    # kafka_producer_power()
     kafka_consumer_power()
