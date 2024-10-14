@@ -1,20 +1,5 @@
-#!/usr/bin/env python
-
-# SPDX-License-Identifier: Apache-2.0
-#
-# The OpenSearch Contributors require contributions made to
-# this file be licensed under the Apache-2.0 license or a
-# compatible open source license.
-#
-# Modifications Copyright OpenSearch Contributors. See
-# GitHub history for details.
-
-
 import os
-
 from opensearchpy import OpenSearch
-
-# connect to OpenSearch
 
 
 def main() -> None:
@@ -46,12 +31,12 @@ def main() -> None:
     index_name = "canvas-index"
 
     # delete the document
-    for i in range(1, 100):
+    for i in range(1, 10000):
         doc_id = str(i)
         response = client.delete(index=index_name, id=doc_id)
         print(response)
 
-    # # delete the index
+    # delete the index
 
     # response = client.indices.delete(index=index_name)
 
