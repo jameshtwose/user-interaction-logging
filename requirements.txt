@@ -1,6 +1,11 @@
+numpy==1.26.4
 confluent-kafka
 streamlit
 streamlit-drawable-canvas>=0.8
 svgpathtools
 svgwrite
 opensearch-py
+plotly
+pandasai
+python-dotenv
+pyyaml
