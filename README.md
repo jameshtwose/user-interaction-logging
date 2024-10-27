@@ -11,5 +11,4 @@ Demo of website interactions of users using streamlit for the frontend, Kafka to
 - `streamlit run app.py`
 - `python client-kafka-opensearch.py`
 - setup and run [LM Studio](https://lmstudio.ai/)
-  - optional (if you are running LM Studio on a different machine): `http://localhost.run/` to expose the LM Studio to the internet
 - `streamlit run dashboard.py`
