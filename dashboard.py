@@ -112,6 +112,8 @@ def get_chat_response(data: pd.DataFrame, question_for_agent: str):
         "http://localhost:1234/v1/chat/completions",
         json=new_body,
     )
+    if response.status_code != 200:
+        return response.text
     return response.json().get("choices")[0].get("message").get("content")
 
 
